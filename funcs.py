@@ -59,7 +59,7 @@ def GetScores():
 
   return scores
 
-def PlotScores(all_scores, teams):
+def PlotWeeklyScores(all_scores, teams):
   
   # Bar chart of team scores by week
   plt.figure()
@@ -77,4 +77,15 @@ def PlotScores(all_scores, teams):
     plt.subplot(4, 3, week)
     plt.bar(team_ids, scores)
     
+  plt.show()
+
+def PlotTeamScores(all_scores, teams):
+  plt.figure()
+
+  for index, team in enumerate(teams):
+    scores = [all_scores[week][team] for week in all_scores]
+    
+    plt.subplot(5, 2, index + 1)
+    plt.plot(range(1, 13), scores)
+
   plt.show()
