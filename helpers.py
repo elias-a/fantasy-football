@@ -15,3 +15,6 @@ def scrape(url, filename):
     f.write(driver.page_source)
 
   driver.quit()
+
+def format_name(name):
+  return "".join([c for c in name if c.isupper()])

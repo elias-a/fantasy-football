@@ -10,10 +10,10 @@ managers_dict = funcs.GetManagers()
 scores = funcs.GetScores()
 
 # Plot bar charts of team scores each week
-funcs.PlotWeeklyScores(scores, teams_dict)
+funcs.PlotWeeklyScores(scores, managers_dict)
 
 # Plot line plots of scores by team
-funcs.PlotTeamScores(scores, teams_dict)
+funcs.PlotTeamScores(scores, managers_dict)
 
-# Plot summary statistics 
+# Plot summary statistics of team scoring
 funcs.PlotSummaryStats(scores, managers_dict)

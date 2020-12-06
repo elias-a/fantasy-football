@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from helpers import scrape
+from helpers import scrape, format_name
 from bs4 import BeautifulSoup
 
 from config import LEAGUE_ID, UPDATE
@@ -86,10 +86,9 @@ def GetScores():
 
   return scores
 
+# Bar charts of team scores by week
 def PlotWeeklyScores(all_scores, teams):
-  
-  # Bar chart of team scores by week
-  plt.figure()
+  fig = plt.figure()
 
   for week in range(1, 13):
     team_ids = []
@@ -98,34 +97,43 @@ def PlotWeeklyScores(all_scores, teams):
 
     for team in teams.keys():
       team_ids.append(team)
-      team_names.append(teams[team])
+      team_names.append(format_name(teams[team]))
       scores.append(all_scores[str(week)][team])
 
-    plt.subplot(4, 3, week)
-    plt.bar(team_ids, scores)
-    
+    ax = fig.add_subplot(4, 3, week)
+    ax.bar(team_names, scores)
+    ax.title.set_text('Week ' + str(week))
+
+  fig.tight_layout()
   plt.show()
 
+# Line plots of scores by team
 def PlotTeamScores(all_scores, teams):
-  plt.figure()
+  fig = plt.figure()
 
   for index, team in enumerate(teams):
     scores = [all_scores[week][team] for week in all_scores]
     
-    plt.subplot(5, 2, index + 1)
-    plt.plot(range(1, 13), scores)
+    ax = fig.add_subplot(5, 2, index + 1)
+    ax.plot(range(1, 13), scores)
+    ax.title.set_text(teams[team])
 
+  fig.tight_layout()
   plt.show()
 
+# Plot summary statistics of team scoring
 def PlotSummaryStats(all_scores, teams):
   fig = plt.figure()
 
+  team_names = []
   team_ids = []
   average = []
   std = []
   maximum = []
   minimum = []
   for team in teams:
+    name = format_name(teams[team])
+    team_names.append(name)
     team_ids.append(team)
     scores = [all_scores[week][team] for week in all_scores]
     
@@ -135,19 +143,19 @@ def PlotSummaryStats(all_scores, teams):
     minimum.append(np.min(scores))
   
   ax1 = fig.add_subplot(2, 2, 1)
-  ax1.bar(team_ids, average)
+  ax1.bar(team_names, average)
   ax1.title.set_text('Average Score')
 
   ax2 = fig.add_subplot(2, 2, 2)
-  ax2.bar(team_ids, std)
+  ax2.bar(team_names, std)
   ax2.title.set_text('Standard Deviation of Average Score')
 
   ax3 = fig.add_subplot(2, 2, 3)
-  ax3.bar(team_ids, maximum)
+  ax3.bar(team_names, maximum)
   ax3.title.set_text('Maximum Score')
 
   ax4 = fig.add_subplot(2, 2, 4)
-  ax4.bar(team_ids, minimum)
+  ax4.bar(team_names, minimum)
   ax4.title.set_text('Minimum Score')
 
   plt.show()
