@@ -163,3 +163,50 @@ def PlotSummaryStats(all_scores, teams):
   std_average = np.std(average)
   std_max = np.std(maximum)
   std_min = np.std(minimum)
+
+"""
+Determine how much a team "explodes" compared to other teams,
+in both magnitude and frequency.
+"""
+def CalcExplosiveness(weekly_scores, teams):
+  team_names = []
+  team_scores = []
+  team_variation = []
+
+  for team in teams:
+    explosion_factor = 0
+    implosion_factor = 0
+
+    scores = [weekly_scores[week][team] for week in weekly_scores]
+
+    avg_score = np.mean(scores)
+    std_avg_score = np.std(scores)
+    
+    upper_lim = avg_score + std_avg_score
+    lower_lim = avg_score - std_avg_score
+    explosions = [week for week in scores if week > upper_lim]
+    implosions = [week for week in scores if week < lower_lim]
+
+    for explosion in explosions:
+      # Calculate percentage above average
+      perc_above_avg = (explosion - avg_score) / avg_score
+      explosion_factor += 100 * perc_above_avg
+
+    for implosion in implosions:
+      # Calculate percentage below average
+      perc_below_avg = (avg_score - implosion) / avg_score
+      implosion_factor += 100 * perc_below_avg
+
+    combined_factor = explosion_factor + implosion_factor
+    net_factor = explosion_factor - implosion_factor
+
+    team_names.append(format_name(teams[team]))
+    team_scores.append(avg_score)
+    team_variation.append(std_avg_score)
+
+  fig = plt.figure() 
+  ax = fig.add_subplot(1, 1, 1)
+  ax.bar(team_names, team_scores, yerr=team_variation, capsize=10)
+  ax.title.set_text('Average Points Scored')
+
+  plt.show()
