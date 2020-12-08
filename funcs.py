@@ -172,8 +172,10 @@ def CalcExplosiveness(weekly_scores, teams):
   team_names = []
   team_scores = []
   team_variation = []
+  team_explosiveness = {}
 
   for team in teams:
+    explosiveness = []
     explosion_factor = 0
     implosion_factor = 0
 
@@ -200,6 +202,8 @@ def CalcExplosiveness(weekly_scores, teams):
     combined_factor = explosion_factor + implosion_factor
     net_factor = explosion_factor - implosion_factor
 
+    team_explosiveness[team] = [explosion_factor, implosion_factor, combined_factor, net_factor]
+
     team_names.append(format_name(teams[team]))
     team_scores.append(avg_score)
     team_variation.append(std_avg_score)
@@ -209,4 +213,34 @@ def CalcExplosiveness(weekly_scores, teams):
   ax.bar(team_names, team_scores, yerr=team_variation, capsize=10)
   ax.title.set_text('Average Points Scored')
 
-  plt.show()
+  #plt.show()
+
+  return team_explosiveness
+
+def GetRecords():
+  url = 'https://fantasy.nfl.com/league/' + LEAGUE_ID
+  filename = 'data/records.txt'
+
+  # Scrape fresh data, if desired
+  if UPDATE:
+    scrape(url, filename)
+
+  f = open(filename, 'r')
+
+  txt = f.read()
+  html = BeautifulSoup(txt, 'html.parser')
+
+  data = html.find_all('td', { 'class': 'teamWinPct' })
+
+  records = {}
+  for d in data:
+    records[d.parent['class'][0][-1]] = d.text
+
+  f.close()
+
+  return records
+
+def AnalyzeExplosiveness(records, team_explosiveness):
+  for team in team_explosiveness:
+    record = records[team]
+    explosiveness = team_explosiveness[team]

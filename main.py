@@ -19,4 +19,9 @@ funcs.PlotTeamScores(scores, managers_dict)
 funcs.PlotSummaryStats(scores, managers_dict)
 
 # Compute the Explosiveness Factor for each team
-funcs.CalcExplosiveness(scores, managers_dict)
+explosiveness = funcs.CalcExplosiveness(scores, managers_dict)
+
+# Get records for each team
+records = funcs.GetRecords()
+
+funcs.AnalyzeExplosiveness(records, explosiveness)
