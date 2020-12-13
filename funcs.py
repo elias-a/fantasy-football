@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
 from helpers import scrape, format_name
 from bs4 import BeautifulSoup
 
@@ -212,8 +213,7 @@ def CalcExplosiveness(weekly_scores, teams):
   ax = fig.add_subplot(1, 1, 1)
   ax.bar(team_names, team_scores, yerr=team_variation, capsize=10)
   ax.title.set_text('Average Points Scored')
-
-  #plt.show()
+  plt.show()
 
   return team_explosiveness
 
@@ -240,7 +240,90 @@ def GetRecords():
 
   return records
 
-def AnalyzeExplosiveness(records, team_explosiveness):
-  for team in team_explosiveness:
-    record = records[team]
+def AnalyzeExplosiveness(team_records, team_explosiveness):
+  records = []
+  explosions = []
+  implosions = []
+  combined = []
+  net = []
+
+  teams = {k: v for k, v in sorted(team_records.items(), key=lambda item: item[1])}
+
+  for team in teams:
+    record = team_records[team]
     explosiveness = team_explosiveness[team]
+
+    records.append(float(record))
+    explosions.append(explosiveness[0])
+    implosions.append(explosiveness[1])
+    combined.append(explosiveness[2])
+    net.append(explosiveness[3])
+
+  fig = plt.figure()
+
+  x = np.array(records).reshape((-1, 1)).astype(np.float64)
+  y = np.array(explosions).astype(np.float64)
+
+  model = LinearRegression()
+  model.fit(x, y)
+  coef = model.coef_[0]
+  intercept  = model.intercept_
+
+  records_list = np.arange(0, 1, 0.01)
+  explosions_list = intercept + coef * records_list
+  R_sq = model.score(x, y)
+
+  ax1 = fig.add_subplot(2, 2, 1)
+  ax1.scatter(records, explosions)
+  ax1.plot(records_list, explosions_list)
+  ax1.title.set_text('Explosions, R_sq=' + str(np.round(R_sq, 2)))
+
+  x = np.array(records).reshape((-1, 1)).astype(np.float64)
+  y = np.array(implosions).astype(np.float64)
+
+  model = LinearRegression()
+  model.fit(x, y)
+  coef = model.coef_[0]
+  intercept  = model.intercept_
+
+  implosions_list = intercept + coef * records_list
+  R_sq = model.score(x, y)
+
+  ax2 = fig.add_subplot(2, 2, 2)
+  ax2.scatter(records, implosions)
+  ax2.plot(records_list, implosions_list)
+  ax2.title.set_text('Implosions, R_sq=' + str(np.round(R_sq, 2)))
+
+  x = np.array(records).reshape((-1, 1)).astype(np.float64)
+  y = np.array(combined).astype(np.float64)
+
+  model = LinearRegression()
+  model.fit(x, y)
+  coef = model.coef_[0]
+  intercept  = model.intercept_
+
+  combined_list = intercept + coef * records_list
+  R_sq = model.score(x, y)
+
+  ax3 = fig.add_subplot(2, 2, 3)
+  ax3.scatter(records, combined)
+  ax3.plot(records_list, combined_list)
+  ax3.title.set_text('Combined (Explosions + Implosions), R_sq=' + str(np.round(R_sq, 2)))
+
+  x = np.array(records).reshape((-1, 1)).astype(np.float64)
+  y = np.array(net).astype(np.float64)
+
+  model = LinearRegression()
+  model.fit(x, y)
+  coef = model.coef_[0]
+  intercept  = model.intercept_
+
+  net_list = intercept + coef * records_list
+  R_sq = model.score(x, y)
+
+  ax4 = fig.add_subplot(2, 2, 4)
+  ax4.scatter(records, net)
+  ax4.plot(records_list, net_list)
+  ax4.title.set_text('Net (Explosions - Implosions), R_sq=' + str(np.round(R_sq, 2)))
+
+  plt.show()
