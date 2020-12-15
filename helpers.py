@@ -1,3 +1,5 @@
+import numpy as np
+from sklearn.linear_model import LinearRegression
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -18,3 +20,16 @@ def scrape(url, filename):
 
 def format_name(name):
   return "".join([c for c in name if c.isupper()])
+
+def run_regression(x, y):
+  x = np.array(x).reshape((-1, 1)).astype(np.float64)
+  y = np.array(y).astype(np.float64)
+
+  model = LinearRegression()
+  model.fit(x, y)
+
+  intercept  = model.intercept_
+  coef = model.coef_[0]
+  R_sq = model.score(x, y)
+
+  return (intercept, coef, R_sq)
