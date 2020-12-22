@@ -1,0 +1,2 @@
+if [ -f web/index.html ]; then rm web/index.html; fi
+cp template.html web/index.html
