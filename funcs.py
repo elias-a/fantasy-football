@@ -1,6 +1,6 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
 from helpers import scrape, format_name, run_regression
 from bs4 import BeautifulSoup
 
@@ -33,7 +33,7 @@ def GetTeams():
 # Return dictionary of team IDs and manager names
 def GetManagers():
   url = 'https://fantasy.nfl.com/league/' + LEAGUE_ID + '/owners'
-  filename = 'data/managers.txt'
+  filename = os.path.dirname(os.path.realpath(__file__)) + '/data/managers.txt'
 
   # Scrape fresh data, if desired
   if UPDATE:

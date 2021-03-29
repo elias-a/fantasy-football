@@ -5,6 +5,9 @@ from selenium.webdriver.chrome.options import Options
 
 from config import DRIVER_PATH
 
+def to_js(output):
+  pass
+
 def scrape(url, filename):
   options = Options()
   options.headless = True

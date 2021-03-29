@@ -10,6 +10,12 @@ export class Api {
             prefix: '/api'
         });
         this.controller = controller;
+
+        this.router.post('/get-managers', async (ctx) => {
+            const result = await this.controller.getManagers();
+            ctx.status = 200;
+            ctx.body = result;
+        });
     }
 }
 
