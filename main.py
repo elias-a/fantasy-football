@@ -1,17 +1,21 @@
-import json
+import sys
 import funcs
 from helpers import to_js
 
-# Get dictionary of team IDs and names
-#teams_dict = funcs.GetTeams()
+request = sys.argv[1]
 
-# Get dictionary of team IDs and manager names
-managers_dict = funcs.GetManagers()
-print(json.dumps(managers_dict))
-to_js(managers_dict)
-
-# Get weekly scores for each team
-#scores = funcs.GetScores()
+if request == 'teams': 
+    # Get dictionary of team IDs and names. 
+    teams_dict = funcs.GetTeams()
+    to_js(teams_dict)
+elif request == 'managers':
+    # Get dictionary of team IDs and manager names. 
+    managers_dict = funcs.GetManagers()
+    to_js(managers_dict)
+elif request == 'weekly_scores':
+    # Get weekly scores for each team. 
+    scores = funcs.GetScores() 
+    to_js(scores)
 
 # Plot bar charts of team scores each week
 #funcs.PlotWeeklyScores(scores, managers_dict)

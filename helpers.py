@@ -1,3 +1,4 @@
+import json
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from selenium import webdriver
@@ -6,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from config import DRIVER_PATH
 
 def to_js(output):
-  pass
+  print(json.dumps(output))
 
 def scrape(url, filename):
   options = Options()

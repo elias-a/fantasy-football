@@ -1,11 +1,15 @@
 import React from 'react';
-import Teams from './Teams';
+import { ThemeProvider } from '@material-ui/core/styles';
+import League from './League';
+import { theme } from './theme';
 
 function App() {
     return (
-      <div>
-        <Teams />
-      </div>
+      <ThemeProvider theme={theme}>
+        <div>
+          <League />
+        </div>
+      </ThemeProvider>
     );
 }
 

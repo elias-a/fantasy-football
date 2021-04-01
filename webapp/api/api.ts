@@ -11,8 +11,8 @@ export class Api {
         });
         this.controller = controller;
 
-        this.router.post('/get-managers', async (ctx) => {
-            const result = await this.controller.getManagers();
+        this.router.post('/get-team-data', async (ctx) => {
+            const result = await this.controller.getTeamData();
             ctx.status = 200;
             ctx.body = result;
         });

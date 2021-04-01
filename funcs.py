@@ -9,7 +9,7 @@ from config import LEAGUE_ID, UPDATE
 # Return dictionary of team IDs and names
 def GetTeams():
   url = 'https://fantasy.nfl.com/league/' + LEAGUE_ID
-  filename = 'data/teams.txt'
+  filename = os.path.dirname(os.path.realpath(__file__)) + '/data/teams.txt'
 
   # Scrape fresh data, if desired
   if UPDATE:
