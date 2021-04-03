@@ -29,4 +29,9 @@ export const useStyles = makeStyles((theme) => createStyles({
         height: '5vh',
         textAlign: 'center',
     },
+    teamDashboardSection: {
+        marginLeft: '40vw',
+        width: '60vw',
+        height: '100vh',
+    }, 
 }));

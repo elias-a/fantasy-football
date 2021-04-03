@@ -63,7 +63,7 @@ def GetScores():
   for week in range(12):
     week = str(week + 1)
     url = 'https://fantasy.nfl.com/league/' + LEAGUE_ID + '/team/3/gamecenter?week=' + week
-    filename = 'data/scores' + week + '.txt'
+    filename = os.path.dirname(os.path.realpath(__file__)) + '/data/scores' + week + '.txt'
 
     # Scrape fresh data, if desired
     if UPDATE: 

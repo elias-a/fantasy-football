@@ -11,10 +11,12 @@ export class Controller {
     async getTeamData() {
         const teams = await this.getTeams();
         const managers = await this.getManagers();
+        const scores = await this.getWeeklyScores();
 
         return {
             teams,
-            managers
+            managers,
+            scores
         }
     }
 
@@ -25,6 +27,11 @@ export class Controller {
 
     async getManagers() {
         const py = spawnSync('python3', ['../main.py', 'managers']);
+        return JSON.parse(py.stdout.toString());
+    }
+
+    async getWeeklyScores() {
+        const py = spawnSync('python3', ['../main.py', 'weekly_scores']);
         return JSON.parse(py.stdout.toString());
     }
 }
