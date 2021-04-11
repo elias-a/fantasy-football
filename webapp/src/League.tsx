@@ -18,6 +18,7 @@ function League() {
     const [plotData, setPlotData] = useState(null);
     const [averageWeeklyScores, setAverageWeeklyScores] = useState(null);
     const [averageErrorBars, setAverageErrorBars] = useState(null);
+    const [medianWeeklyScores, setMedianWeeklyScores] = useState(null);
     const [selectedTeam, setSelectedTeam] = useState<string>('');
     const styles = useStyles();
 
@@ -45,19 +46,22 @@ function League() {
         const data = [];
         const averages = [];
         const errorBars = [];
+        const medians = [];
         Object.keys(scoreData).map((week: string) => {
+            const scores = Object.values(scoreData[week]);
+
             data.push({
                 x: parseInt(week), 
                 y: scoreData[week][team]
             });
 
-            const averageScore = arrAvg(Object.values(scoreData[week]));
+            const averageScore = arrAvg(scores);
             averages.push({
                 x: parseInt(week),
                 y: averageScore
             });
 
-            const squaredDifferences = Object.values(scoreData[week]).map((score: number) => {
+            const squaredDifferences = scores.map((score: number) => {
                 return Math.pow(score - averageScore, 2);
             });
             const std = Math.sqrt(arrAvg(squaredDifferences));
@@ -66,11 +70,20 @@ function League() {
                 lower: averageScore - std,
                 upper: averageScore + std
             });
+
+            const sortedScores = [...scores].sort((a, b) => b - a);
+            const middleWeek = Math.floor(sortedScores.length / 2) - 1;
+
+            medians.push({
+                x: parseInt(week),
+                y: sortedScores[middleWeek]
+            });
         });
 
         setPlotData(data);
         setAverageWeeklyScores(averages);
         setAverageErrorBars(errorBars);
+        setMedianWeeklyScores(medians);
     };
 
     return (
@@ -130,14 +143,18 @@ function League() {
                                 color={'#87CEFA'}
                                 data={averageWeeklyScores}
                             />
+                            <VerticalBarSeries
+                                color={'#4682B4'}
+                                data={medianWeeklyScores}
+                            />
                             {averageErrorBars.map((data: any, i: number) => { 
                                 return <LineSeries
                                     color={'red'}
                                     data={[{
-                                        x: i + 1,
+                                        x: i + 0.8,
                                         y: data.lower
                                     }, {
-                                        x: i + 1,
+                                        x: i + 0.8,
                                         y: data.upper
                                     }]}
                                 />
