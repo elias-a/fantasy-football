@@ -7,6 +7,7 @@ export const useStyles = makeStyles((theme) => createStyles({
         position: 'absolute',
         top: 0,
         left: 0,
+        //backgroundColor: 'hsl(240, 4%, 16%)',
         backgroundColor: theme.palette.secondary.main,
     },
     teamsTableSection: {
