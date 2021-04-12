@@ -8,8 +8,13 @@ import {
     VerticalBarSeries,
     LineSeries,
 } from 'react-vis';
-import { useStyles } from './styles';
 import '../node_modules/react-vis/dist/style.css';
+import { useStyles } from './styles';
+import {
+    average,
+    standardError,
+    median,
+} from './helpers';
 
 function League() {
     const [managers, setManagers] = useState(null);
@@ -41,8 +46,6 @@ function League() {
     };
 
     const changePlotData = (scoreData, team: string) => {
-        const arrAvg = arr => arr.reduce((a,b) => a + b, 0) / arr.length;
-
         const data = [];
         const averages = [];
         const errorBars = [];
@@ -55,28 +58,22 @@ function League() {
                 y: scoreData[week][team]
             });
 
-            const averageScore = arrAvg(scores);
+            const averageScore = average(scores);
             averages.push({
                 x: parseInt(week),
                 y: averageScore
             });
 
-            const squaredDifferences = scores.map((score: number) => {
-                return Math.pow(score - averageScore, 2);
-            });
-            const std = Math.sqrt(arrAvg(squaredDifferences));
-
+            const standardErrorScore = standardError(scores);
             errorBars.push({
-                lower: averageScore - std,
-                upper: averageScore + std
+                lower: averageScore - standardErrorScore,
+                upper: averageScore + standardErrorScore
             });
 
-            const sortedScores = [...scores].sort((a, b) => b - a);
-            const middleWeek = Math.floor(sortedScores.length / 2) - 1;
-
+            const medianScore = median(scores);
             medians.push({
                 x: parseInt(week),
-                y: sortedScores[middleWeek]
+                y: medianScore
             });
         });
 
