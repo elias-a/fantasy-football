@@ -1,38 +1,48 @@
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
-export const useStyles = makeStyles((theme) => createStyles({
+export const useStyles = makeStyles({
     leagueDashboard: {
         width: '100vw',
         height: '100vh',
         position: 'absolute',
         top: 0,
         left: 0,
-        //backgroundColor: 'hsl(240, 4%, 16%)',
-        backgroundColor: theme.palette.secondary.main,
+        backgroundColor: '#1d262b',
+        color: '#1d262b',
+        fontFamily: 'Tahoma'
     },
     teamsTableSection: {
+        backgroundColor: '#3a70a6',
         width: '36vw',
         height: '80vh',
         position: 'absolute',
         top: 0,
         left: 0,
-        paddingTop: '20vh',
-        paddingLeft: '4vw',
+        padding: '20vh 2vw 0 2vw',
     },
     teamsTable: {
-        border: '1px solid #000',
-        borderCollapse: 'collapse',
+        border: 'none',
     },
     teamsCell: {
-        border: '1px solid #000',
-        borderCollapse: 'collapse',
-        width: '18vw',
+        border: 'none',
         height: '5vh',
         textAlign: 'center',
+        backgroundColor: '#fffff0',
+    },
+    teamButton: {
+        width: '18vw',
+        height: '5vh',
+        background: 'none',
+        color: 'inherit',
+        border: 'none',
+        padding: 0,
+        font: 'inherit',
+        cursor: 'pointer',
+        outline: 'inherit',
     },
     teamDashboardSection: {
         marginLeft: '40vw',
         width: '60vw',
         height: '100vh',
     }, 
-}));
+});

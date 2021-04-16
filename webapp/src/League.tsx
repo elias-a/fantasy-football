@@ -101,19 +101,27 @@ function League() {
                         {Object.keys(teams).map((team: string) => {
                             return (
                                 <tr key={team}>
-                                    <td className={styles.teamsCell}>
+                                    <td className={styles.teamsCell}
+                                    style={{
+                                        width: '10vw'
+                                    }}
+                                    >
                                         {managers[team]}
                                     </td>
                                     <td 
                                         className={styles.teamsCell}
                                         style={team === selectedTeam ? 
-                                            { backgroundColor: '#fff' } 
-                                            : null
+                                            { width: '26vw', backgroundColor: '#1d262b', color: '#fffff0' } 
+                                            : { width: '26vw' }
                                         }
                                     >
                                         <button
                                             name={team}
                                             onClick={changeSelectedTeam}
+                                            className={styles.teamButton}
+                                            style={{
+                                                width: '26vw'
+                                            }}
                                         >
                                             {teams[team]}
                                         </button>
@@ -137,16 +145,16 @@ function League() {
                             <YAxis />
                             
                             <VerticalBarSeries 
-                                color={'#87CEFA'}
+                                color={'#89cff0'}
                                 data={averageWeeklyScores}
                             />
                             <VerticalBarSeries
-                                color={'#4682B4'}
+                                color={'#57a0d3'}
                                 data={medianWeeklyScores}
                             />
                             {averageErrorBars.map((data: any, i: number) => { 
                                 return <LineSeries
-                                    color={'red'}
+                                    color={'#d92121'}
                                     data={[{
                                         x: i + 0.8,
                                         y: data.lower
@@ -157,7 +165,7 @@ function League() {
                                 />
                             })}
                             <LineMarkSeries
-                                color={'#0000CD'}
+                                color={'#0f52ba'}
                                 data={plotData}
                             />
                         </XYPlot>
