@@ -55,9 +55,39 @@ WebDriverWait(driver, 5, ignored_exceptions=(StaleElementReferenceException)).un
 html = BeautifulSoup(driver.page_source, 'html.parser')
 receiversHtml = html.find_all('a', { 'class': 'playerCard' })
 
-# Add receiver names to a list. 
+# Parses text into a numeric value, returning 
+# 0 for missing data. 
+def parseFloat(string):
+    try:
+        return float(string)
+    except ValueError:
+        return 0
+
+# Add receiver stats to a list. 
 receivers = []
-for receiverRow in receiversHtml:
-    receivers.append(receiverRow.text)
+for receiverNameElement in receiversHtml:
+    row = receiverNameElement.parent.parent.parent
+    stats = { 'name': receiverNameElement.text }
+
+    passingStats = {}
+    passingStats['yards'] = parseFloat(row.find('td', { 'class': 'stat_5' }).text)
+    passingStats['touchdowns'] = parseFloat(row.find('td', { 'class': 'stat_6' }).text)
+    passingStats['interceptions'] = parseFloat(row.find('td', { 'class': 'stat_7' }).text)
+    stats['passing'] = passingStats
+
+    rushingStats = {}
+    rushingStats['yards'] = parseFloat(row.find('td', { 'class': 'stat_14' }).text)
+    rushingStats['touchdowns'] = parseFloat(row.find('td', { 'class': 'stat_15' }).text)
+    stats['rushing'] = rushingStats
+
+    receivingStats = {}
+    receivingStats['receptions'] = parseFloat(row.find('td', { 'class': 'stat_20' }).text)
+    receivingStats['yards'] = parseFloat(row.find('td', { 'class': 'stat_21' }).text)
+    receivingStats['touchdowns'] = parseFloat(row.find('td', { 'class': 'stat_22' }).text)
+    stats['receiving'] = receivingStats
+    
+    stats['points'] = parseFloat(row.find('td', { 'class': 'statTotal' }).text)
+
+    receivers.append(stats)
 
 driver.quit()
