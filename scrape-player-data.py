@@ -1,3 +1,4 @@
+import sqlite3 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -63,6 +64,26 @@ def parseFloat(string):
     except ValueError:
         return 0
 
+db = sqlite3.connect('webapp/data.db')
+cursor = db.cursor()
+
+# Create database table to store player data. 
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Player (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name VARCHAR(255),
+        passYards FLOAT,
+        passTouchdowns FLOAT,
+        interceptions FLOAT,
+        rushYards FLOAT,
+        rushTouchdowns FLOAT,
+        receptions FLOAT,
+        receivingYards FLOAT,
+        receivingTouchdowns FLOAT,
+        points FLOAT
+    )
+""")
+
 # Add receiver stats to a list. 
 receivers = []
 for receiverNameElement in receiversHtml:
@@ -88,6 +109,13 @@ for receiverNameElement in receiversHtml:
     
     stats['points'] = parseFloat(row.find('td', { 'class': 'statTotal' }).text)
 
+    cursor.execute("""
+        INSERT INTO Player (name, passYards, passTouchdowns, interceptions, rushYards, rushTouchdowns, receptions, receivingYards, receivingTouchdowns, points) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (stats['name'], stats['passing']['yards'], stats['passing']['touchdowns'], stats['passing']['interceptions'], stats['rushing']['yards'], stats['rushing']['touchdowns'], stats['receiving']['receptions'], stats['receiving']['yards'], stats['receiving']['touchdowns'], stats['points']))
+    db.commit() 
+
     receivers.append(stats)
+
+db.close()
 
 driver.quit()
