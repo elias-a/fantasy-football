@@ -5,4 +5,4 @@ config.py
 bundle.js
 node_modules
 dist
-*.db
+config.ts

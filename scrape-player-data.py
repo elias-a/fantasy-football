@@ -1,4 +1,4 @@
-import sqlite3 
+import psycopg2 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -6,7 +6,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
-from config import DRIVER_PATH, LEAGUE_ID
+from config import DRIVER_PATH, LEAGUE_ID, DB, USER, PASSWORD
 
 options = Options()
 options.headless = True
@@ -64,13 +64,13 @@ def parseFloat(string):
     except ValueError:
         return 0
 
-db = sqlite3.connect('webapp/data.db')
+db = psycopg2.connect(dbname=DB, user=USER, password=PASSWORD)
 cursor = db.cursor()
 
 # Create database table to store player data. 
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS Player (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name VARCHAR(255),
         passYards FLOAT,
         passTouchdowns FLOAT,
@@ -110,7 +110,7 @@ for receiverNameElement in receiversHtml:
     stats['points'] = parseFloat(row.find('td', { 'class': 'statTotal' }).text)
 
     cursor.execute("""
-        INSERT INTO Player (name, passYards, passTouchdowns, interceptions, rushYards, rushTouchdowns, receptions, receivingYards, receivingTouchdowns, points) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Player (name, passYards, passTouchdowns, interceptions, rushYards, rushTouchdowns, receptions, receivingYards, receivingTouchdowns, points) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (stats['name'], stats['passing']['yards'], stats['passing']['touchdowns'], stats['passing']['interceptions'], stats['rushing']['yards'], stats['rushing']['touchdowns'], stats['receiving']['receptions'], stats['receiving']['yards'], stats['receiving']['touchdowns'], stats['points']))
     db.commit() 
 

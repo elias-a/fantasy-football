@@ -1,4 +1,5 @@
 import { Sequelize, DataTypes } from 'sequelize';
+import { db, user, password } from './config';
 
 export class Models {
     sequelize: Sequelize;
@@ -28,31 +29,31 @@ export class Models {
                 type: DataTypes.STRING
             },
             passYards: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             passTouchdowns: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             interceptions: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             rushYards: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             rushTouchdowns: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             receptions: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             receivingYards: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             receivingTouchdowns: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             },
             points: {
-                type: DataTypes.NUMBER
+                type: DataTypes.FLOAT
             }
         }, {
             tableName: 'Player',
@@ -63,9 +64,8 @@ export class Models {
     }
 }
 
-export const models = new Models(new Sequelize({
-    dialect: 'sqlite',
-    storage: 'data.db',
+export const models = new Models(new Sequelize(db, user, password, {
+    dialect: 'postgres',
     query: {
         raw: true
     },
