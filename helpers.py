@@ -37,3 +37,11 @@ def run_regression(x, y):
   R_sq = model.score(x, y)
 
   return (intercept, coef, R_sq)
+
+# Parses text into a numeric value, returning 
+# 0 for missing data. 
+def parseFloat(string):
+  try:
+      return float(string)
+  except ValueError:
+      return 0
