@@ -1,3 +1,4 @@
+import math
 import psycopg2 
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -31,56 +32,66 @@ cursor.execute("""
     )
 """)
 
-season = 2020
+# Note: This dataset may include records for players in years
+# they did not play. While all associated stats are 0 in these
+# rows, the data should be cleaned to only include entries for 
+# a player in the years they did play. 
 
-# Iterate over QB, RB, WR, and TE data. 
-positionKeys = { 1: 'QB', 2: 'RB', 3: 'WR', 4: 'TE' }
-for playerPosition in (*positionKeys,):
+# Extract data for all seasons since 2009. 
+firstSeasonToInclude = 2009
+lastSeasonToInclude = 2020
+for season in range(firstSeasonToInclude, lastSeasonToInclude + 1):
 
-    # Gather data for the first 75 players. Each page has data for 25 players,
-    # and the url requires the index of the first player on the current page. 
-    for page in range(3):
-        playerOffset = 1 + 25 * page
-        url = f'https://fantasy.nfl.com/league/{LEAGUE_ID}/players' \
-              f'?offset={playerOffset}&playerStatus=all&position={playerPosition}' \
-              f'&sort=pts&sortOrder=desc&statCategory=stats&statSeason={season}' \
-              f'&statType=seasonStats'
-        driver.get(url)
+    # Iterate over QB, RB, WR, and TE data. Specify how many players 
+    # to collect data for each season. 
+    positionKeys = { 1: 'QB', 2: 'RB', 3: 'WR', 4: 'TE' }
+    rowsPerPosition = { 1: 25, 2: 50, 3: 50, 4: 25 }
+    for playerPosition in (*positionKeys,):
 
-        # Extract data from the table of players. 
-        html = BeautifulSoup(driver.page_source, 'html.parser')
-        receiversHtml = html.find_all('a', { 'class': 'playerCard' })
+        # Each page has data for 25 players, and the url requires 
+        # the index of the first player on the current page. 
+        for page in range(math.ceil(rowsPerPosition[playerPosition] / 25)):
+            playerOffset = 1 + 25 * page
+            url = f'https://fantasy.nfl.com/league/{LEAGUE_ID}/players' \
+                  f'?offset={playerOffset}&playerStatus=all&position={playerPosition}' \
+                  f'&sort=pts&sortOrder=desc&statCategory=stats&statSeason={season}' \
+                  f'&statType=seasonStats'
+            driver.get(url)
 
-        # Insert player stats into the database. 
-        for receiverNameElement in receiversHtml:
-            row = receiverNameElement.parent.parent.parent
-            stats = [receiverNameElement.text, positionKeys[playerPosition], season]
+            # Extract data from the table of players. 
+            html = BeautifulSoup(driver.page_source, 'html.parser')
+            receiversHtml = html.find_all('a', { 'class': 'playerCard' })
 
-            # Extract passing stats.
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_5' }).text))
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_6' }).text))
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_7' }).text))
+            # Insert player stats into the database. 
+            for receiverNameElement in receiversHtml:
+                row = receiverNameElement.parent.parent.parent
+                stats = [receiverNameElement.text, positionKeys[playerPosition], season]
 
-            # Extract rushing stats. 
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_14' }).text))
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_15' }).text))
+                # Extract passing stats.
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_5' }).text))
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_6' }).text))
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_7' }).text))
 
-            # Extract receiving stats. 
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_20' }).text))
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_21' }).text))
-            stats.append(parseFloat(row.find('td', { 'class': 'stat_22' }).text))
-            
-            # Extract total points. 
-            stats.append(parseFloat(row.find('td', { 'class': 'statTotal' }).text))
+                # Extract rushing stats. 
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_14' }).text))
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_15' }).text))
 
-            cursor.execute("""
-                INSERT INTO Player 
-                    (name, position, season, 
-                    passYards, passTouchdowns, interceptions, 
-                    rushYards, rushTouchdowns, receptions, 
-                    receivingYards, receivingTouchdowns, points) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (*stats,))
+                # Extract receiving stats. 
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_20' }).text))
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_21' }).text))
+                stats.append(parseFloat(row.find('td', { 'class': 'stat_22' }).text))
+                
+                # Extract total points. 
+                stats.append(parseFloat(row.find('td', { 'class': 'statTotal' }).text))
+
+                cursor.execute("""
+                    INSERT INTO Player 
+                        (name, position, season, 
+                         passYards, passTouchdowns, interceptions, 
+                         rushYards, rushTouchdowns, receptions, 
+                         receivingYards, receivingTouchdowns, points) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (*stats,))
 
 db.commit() 
 db.close()
