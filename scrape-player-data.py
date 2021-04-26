@@ -29,49 +29,55 @@ cursor.execute("""
     )
 """)
 
-# Gather data for the first 75 players. Each page has data for 25 players,
-# and the url requires the index of the first player on the current page. 
-for page in range(3):
-    playerOffset = 1 + 25 * page
-    url = f'https://fantasy.nfl.com/league/{LEAGUE_ID}/players' \
-        f'?offset={str(playerOffset)}&playerStatus=all&position=3' \
-        f'&sort=pts&sortOrder=desc&statCategory=stats&statSeason=2020&statType=seasonStats'
-    driver.get(url)
+season = 2020
 
-    # Extract data from the table of players. 
-    html = BeautifulSoup(driver.page_source, 'html.parser')
-    receiversHtml = html.find_all('a', { 'class': 'playerCard' })
+# Iterate over QB (1), RB (2), WR (3), and TE (4) data. 
+for playerPosition in range(4):
 
-    # Insert player stats into the database. 
-    for receiverNameElement in receiversHtml:
-        row = receiverNameElement.parent.parent.parent
-        stats = [receiverNameElement.text]
+    # Gather data for the first 75 players. Each page has data for 25 players,
+    # and the url requires the index of the first player on the current page. 
+    for page in range(3):
+        playerOffset = 1 + 25 * page
+        url = f'https://fantasy.nfl.com/league/{LEAGUE_ID}/players' \
+              f'?offset={playerOffset}&playerStatus=all&position={playerPosition + 1}' \
+              f'&sort=pts&sortOrder=desc&statCategory=stats&statSeason={season}' \
+              f'&statType=seasonStats'
+        driver.get(url)
 
-        # Extract passing stats.
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_5' }).text))
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_6' }).text))
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_7' }).text))
+        # Extract data from the table of players. 
+        html = BeautifulSoup(driver.page_source, 'html.parser')
+        receiversHtml = html.find_all('a', { 'class': 'playerCard' })
 
-        # Extract rushing stats. 
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_14' }).text))
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_15' }).text))
+        # Insert player stats into the database. 
+        for receiverNameElement in receiversHtml:
+            row = receiverNameElement.parent.parent.parent
+            stats = [receiverNameElement.text]
 
-        # Extract receiving stats. 
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_20' }).text))
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_21' }).text))
-        stats.append(parseFloat(row.find('td', { 'class': 'stat_22' }).text))
-        
-        # Extract total points. 
-        stats.append(parseFloat(row.find('td', { 'class': 'statTotal' }).text))
+            # Extract passing stats.
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_5' }).text))
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_6' }).text))
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_7' }).text))
 
-        cursor.execute("""
-            INSERT INTO Player 
-                (name, passYards, passTouchdowns, 
-                interceptions, rushYards, rushTouchdowns, 
-                receptions, receivingYards, receivingTouchdowns, 
-                points) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (*stats,))
+            # Extract rushing stats. 
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_14' }).text))
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_15' }).text))
+
+            # Extract receiving stats. 
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_20' }).text))
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_21' }).text))
+            stats.append(parseFloat(row.find('td', { 'class': 'stat_22' }).text))
+            
+            # Extract total points. 
+            stats.append(parseFloat(row.find('td', { 'class': 'statTotal' }).text))
+
+            cursor.execute("""
+                INSERT INTO Player 
+                    (name, passYards, passTouchdowns, 
+                    interceptions, rushYards, rushTouchdowns, 
+                    receptions, receivingYards, receivingTouchdowns, 
+                    points) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (*stats,))
 
 db.commit() 
 db.close()
