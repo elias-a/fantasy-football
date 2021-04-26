@@ -17,29 +17,32 @@ cursor.execute("""
     CREATE TABLE IF NOT EXISTS Player (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255),
-        passYards FLOAT,
-        passTouchdowns FLOAT,
-        interceptions FLOAT,
-        rushYards FLOAT,
-        rushTouchdowns FLOAT,
-        receptions FLOAT,
-        receivingYards FLOAT,
-        receivingTouchdowns FLOAT,
-        points FLOAT
+        position VARCHAR(255),
+        season SMALLINT,
+        passYards REAL,
+        passTouchdowns REAL,
+        interceptions REAL,
+        rushYards REAL,
+        rushTouchdowns REAL,
+        receptions REAL,
+        receivingYards REAL,
+        receivingTouchdowns REAL,
+        points REAL
     )
 """)
 
 season = 2020
 
-# Iterate over QB (1), RB (2), WR (3), and TE (4) data. 
-for playerPosition in range(4):
+# Iterate over QB, RB, WR, and TE data. 
+positionKeys = { 1: 'QB', 2: 'RB', 3: 'WR', 4: 'TE' }
+for playerPosition in (*positionKeys,):
 
     # Gather data for the first 75 players. Each page has data for 25 players,
     # and the url requires the index of the first player on the current page. 
     for page in range(3):
         playerOffset = 1 + 25 * page
         url = f'https://fantasy.nfl.com/league/{LEAGUE_ID}/players' \
-              f'?offset={playerOffset}&playerStatus=all&position={playerPosition + 1}' \
+              f'?offset={playerOffset}&playerStatus=all&position={playerPosition}' \
               f'&sort=pts&sortOrder=desc&statCategory=stats&statSeason={season}' \
               f'&statType=seasonStats'
         driver.get(url)
@@ -51,7 +54,7 @@ for playerPosition in range(4):
         # Insert player stats into the database. 
         for receiverNameElement in receiversHtml:
             row = receiverNameElement.parent.parent.parent
-            stats = [receiverNameElement.text]
+            stats = [receiverNameElement.text, positionKeys[playerPosition], season]
 
             # Extract passing stats.
             stats.append(parseFloat(row.find('td', { 'class': 'stat_5' }).text))
@@ -72,11 +75,11 @@ for playerPosition in range(4):
 
             cursor.execute("""
                 INSERT INTO Player 
-                    (name, passYards, passTouchdowns, 
-                    interceptions, rushYards, rushTouchdowns, 
-                    receptions, receivingYards, receivingTouchdowns, 
-                    points) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (name, position, season, 
+                    passYards, passTouchdowns, interceptions, 
+                    rushYards, rushTouchdowns, receptions, 
+                    receivingYards, receivingTouchdowns, points) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (*stats,))
 
 db.commit() 

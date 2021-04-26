@@ -28,32 +28,38 @@ export class Models {
             name: {
                 type: DataTypes.STRING
             },
+            position: {
+                type: DataTypes.STRING
+            },
+            season: {
+                type: DataTypes.SMALLINT
+            },
             passYards: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             passTouchdowns: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             interceptions: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             rushYards: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             rushTouchdowns: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             receptions: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             receivingYards: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             receivingTouchdowns: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             },
             points: {
-                type: DataTypes.FLOAT
+                type: DataTypes.REAL
             }
         }, {
             tableName: 'Player',
